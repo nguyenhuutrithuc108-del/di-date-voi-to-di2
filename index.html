@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gửi người tớ thích 💗</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #fff0f5, #ffb6c1);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            text-align: center;
+            position: relative;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.92);
+            padding: 40px 30px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(255, 182, 193, 0.5);
+            max-width: 450px;
+            width: 90%;
+            transition: all 0.3s ease;
+            z-index: 10;
+            border: 2px solid #ffb6c1;
+        }
+
+        h1 {
+            color: #ff69b4;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .gif-box {
+            font-size: 60px;
+            margin-bottom: 20px;
+            animation: bounce 1s infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+
+        .btn-group {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 28px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        #btnYes {
+            background-color: #ff69b4;
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 105, 180, 0.4);
+            z-index: 999;
+        }
+
+        #btnYes:hover {
+            transform: scale(1.05);
+        }
+
+        #btnNo {
+            background-color: #a9a9a9;
+            color: white;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        input[type="date"] {
+            padding: 12px;
+            font-size: 1.1rem;
+            border: 2px solid #ff69b4;
+            border-radius: 10px;
+            color: #4a4a4a;
+            outline: none;
+            margin: 20px 0;
+            width: 80%;
+            background-color: #fff0f5;
+        }
+
+        #btnConfirm {
+            background-color: #ff1493;
+            color: white;
+            display: block;
+            margin: 10px auto 0;
+            box-shadow: 0 5px 15px rgba(255, 20, 147, 0.3);
+        }
+
+        /* Style cho tim hồng bay bổng */
+        .heart-bubble {
+            position: fixed;
+            color: #ff69b4;
+            pointer-events: none;
+            z-index: 1;
+            animation: floatUp 3s linear forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) translateX(0) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) translateX(var(--random-x)) scale(1.5);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MÀN HÌNH 1: TỎ TÌNH -->
+    <div class="container" id="screen1">
+        <div class="gif-box">🌸👉👈🌸</div>
+        <h1>Cậu có muốn đi date với Minh Anh không?</h1>
+        <p style="color: #666;">Suy nghĩ cho kỹ rồi chọn nhaaa! 💗</p>
+        
+        <div class="btn-group">
+            <button id="btnYes" onclick="goNextScreen()">CÓ CHỨ! 🥰</button>
+            <button id="btnNo" onclick="growYesButton()">Không 😢</button>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH 2: CHỌN NGÀY DATE -->
+    <div class="container hidden" id="screen2">
+        <div class="gif-box">💗🎉💗</div>
+        <h1>Hú reee! Tớ biết ngay mà!</h1>
+        <p style="color: #4a4a4a; font-weight: 500;">Chọn một ngày cậu rảnh để tụi mình đi date nè:</p>
+        
+        <input type="date" id="datePicker">
+        
+        <button id="btnConfirm" onclick="finishDate()">Chốt ngày này luôn! 🚀</button>
+    </div>
+
+    <!-- MÀN HÌNH 3: THÀNH CÔNG -->
+    <div class="container hidden" id="screen3">
+        <div class="gif-box">💗👩‍❤️‍👨💗</div>
+        <h1>Hẹn gặp cậu vào ngày hôm đó nha!</h1>
+        <p id="finalMessage" style="font-size: 1.2rem; color: #ff1493; font-weight: bold; margin-top: 15px;"></p>
+        <p style="color: #666; font-size: 0.9rem;">(Nhớ chụp màn hình gửi qua cho Minh Anh biết nha 😉)</p>
+    </div>
+
+    <script>
+        let yesSize = 1;
+
+        // Tạo hiệu ứng tim hồng bay liên tục ở nền ngay từ đầu cho rực rỡ
+        setInterval(createSingleHeart, 300);
+
+        function createSingleHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'heart-bubble';
+            heart.innerHTML = '💗';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.fontSize = Math.random() * 20 + 15 + 'px';
+            // Tạo độ lệch ngẫu nhiên theo chiều ngang khi bay lên
+            heart.style.setProperty('--random-x', (Math.random() * 200 - 100) + 'px');
+            // Thời gian bay ngẫu nhiên từ 3-5 giây cho tự nhiên
+            const duration = Math.random() * 2 + 3;
+            heart.style.animationDuration = duration + 's';
+            
+            document.body.appendChild(heart);
+            setTimeout(() => { heart.remove(); }, duration * 1000);
+        }
+
+        // Hàm làm nút Yes to dần lên mỗi khi bấm No
+        function growYesButton() {
+            const btnYes = document.getElementById('btnYes');
+            const btnNo = document.getElementById('btnNo');
+            
+            yesSize += 0.5;
+            btnYes.style.transform = `scale(${yesSize})`;
+            
+            if (yesSize >= 4) {
+                btnNo.classList.add('hidden');
+                btnYes.style.width = '100vw';
+                btnYes.style.height = '100vh';
+                btnYes.style.position = 'fixed';
+                btnYes.style.top = '0';
+                btnYes.style.left = '0';
+                btnYes.style.borderRadius = '0';
+                btnYes.style.display = 'flex';
+                btnYes.style.justifyContent = 'center';
+                btnYes.style.alignItems = 'center';
+                btnYes.style.fontSize = '3rem';
+            }
+        }
+
+        // Chuyển sang màn hình chọn ngày
+        function goNextScreen() {
+            document.getElementById('screen1').classList.add('hidden');
+            document.getElementById('screen2').classList.remove('hidden');
+            
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('datePicker').setAttribute('min', today);
+        }
+
+        // Chốt ngày và hiển thị màn hình cuối cùng
+        function finishDate() {
+            const dateValue = document.getElementById('datePicker').value;
+            
+            if (!dateValue) {
+                alert("Ơ kìa, chọn ngày đi chứ cậu ơi! 🥺");
+                return;
+            }
+
+            const dateParts = dateValue.split('-');
+            const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+
+            document.getElementById('screen2').classList.add('hidden');
+            document.getElementById('screen3').classList.remove('hidden');
+            document.getElementById('finalMessage').innerText = `Lịch hẹn: Ngày ${formattedDate} 💗`;
+            
+            // Bắn thêm một cơn mưa tim hồng ăn mừng
+            for(let i=0; i<30; i++) {
+                setTimeout(createSingleHeart, i * 50);
+            }
+        }
+    </script>
+</body>
+</html>
